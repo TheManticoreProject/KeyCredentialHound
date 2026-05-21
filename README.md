@@ -67,7 +67,7 @@ The key attributes can be seen in their properties like this:
 ./KeyCredentialHound -h
 Usage: KeyCredentialHound [--debug] [--output-file <string>] [--domain <string>] [--username <string>] [--password <string>] [--hashes <string>] --dc-ip <string> [--port <tcp port>] [--use-ldaps] [--use-kerberos]
 
-  -d, --debug                Debug mode. (default: false)
+  --debug                    Debug mode. (default: false)
   -o, --output-file <string> Output file name. (default: "")
 
   Authentication:

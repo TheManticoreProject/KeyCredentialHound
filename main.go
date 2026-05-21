@@ -37,7 +37,7 @@ func parseArgs() {
 	ap := parser.ArgumentsParser{Banner: "KeyCredentialHound - by Remi GASCOU (Podalirius) @ TheManticoreProject - v1.0.0"}
 
 	// Configuration flags
-	ap.NewBoolArgument(&debug, "-d", "--debug", false, "Debug mode.")
+	ap.NewBoolArgument(&debug, "", "--debug", false, "Debug mode.")
 	ap.NewStringArgument(&outputFile, "-o", "--output-file", "", false, "Output file name.")
 
 	group_ldapSettings, err := ap.NewArgumentGroup("LDAP Connection Settings")
