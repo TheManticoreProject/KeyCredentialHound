@@ -129,7 +129,7 @@ func main() {
 			logger.Warn(fmt.Sprintf("Error exporting graph to file: %s", err))
 			return
 		}
-		err = os.WriteFile(outputFile, []byte(jsonData), 0644)
+		err = os.WriteFile(outputFile, []byte(jsonData), 0600)
 		if err != nil {
 			logger.Warn(fmt.Sprintf("Error exporting graph to file: %s", err))
 			return
