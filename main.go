@@ -126,12 +126,12 @@ func main() {
 		logger.Info(fmt.Sprintf("Exporting graph to file: %s", outputFile))
 		jsonData, err := og.ExportJSON(false)
 		if err != nil {
-			logger.Warn(fmt.Sprintf("Error exporting graph to file: %s", err))
+			logger.Warn(fmt.Sprintf("Error serializing graph to JSON: %s", err))
 			return
 		}
 		err = os.WriteFile(outputFile, []byte(jsonData), 0644)
 		if err != nil {
-			logger.Warn(fmt.Sprintf("Error exporting graph to file: %s", err))
+			logger.Warn(fmt.Sprintf("Error writing graph to file %s: %s", outputFile, err))
 			return
 		}
 		logger.Info(fmt.Sprintf("Graph exported to file: %s", outputFile))
