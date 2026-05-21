@@ -74,7 +74,7 @@ func main() {
 	creds, err := credentials.NewCredentials(authDomain, authUsername, authPassword, authHashes)
 	if err != nil {
 		logger.Warn(fmt.Sprintf("Error creating credentials: %s", err))
-		return
+		os.Exit(1)
 	}
 
 	// Parsing input values for Distinguished Name
@@ -89,12 +89,12 @@ func main() {
 	ldapSession, err := ldap.NewSession(domainController, ldapPort, creds, useLdaps, useKerberos)
 	if err != nil {
 		logger.Warn(fmt.Sprintf("Error creating LDAP session: %s", err))
-		return
+		os.Exit(1)
 	}
 	success, err := ldapSession.Connect()
 	if err != nil {
 		logger.Warn(fmt.Sprintf("Error connecting to LDAP: %s", err))
-		return
+		os.Exit(1)
 	}
 
 	if success {
@@ -108,7 +108,7 @@ func main() {
 		ldapResults, err := ldapSession.QueryWholeSubtree("", query, attributes)
 		if err != nil {
 			logger.Warn(fmt.Sprintf("Error querying LDAP: %s", err))
-			return
+			os.Exit(1)
 		}
 
 		og := gopengraph.NewOpenGraph("KeyCredentialBase")
@@ -119,12 +119,12 @@ func main() {
 		jsonData, err := og.ExportJSON(false)
 		if err != nil {
 			logger.Warn(fmt.Sprintf("Error serializing graph to JSON: %s", err))
-			return
+			os.Exit(1)
 		}
 		err = os.WriteFile(outputFile, []byte(jsonData), 0600)
 		if err != nil {
 			logger.Warn(fmt.Sprintf("Error writing graph to file %s: %s", outputFile, err))
-			return
+			os.Exit(1)
 		}
 		logger.Info(fmt.Sprintf("Graph exported to file: %s", outputFile))
 
@@ -132,5 +132,6 @@ func main() {
 		if debug {
 			logger.Warn("Error: Could not create ldapSession.")
 		}
+		os.Exit(1)
 	}
 }
