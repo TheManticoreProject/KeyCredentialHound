@@ -28,9 +28,6 @@ var (
 	authPassword string
 	authHashes   string
 	useKerberos  bool
-
-	// Source values
-	distinguishedName string
 )
 
 func parseArgs() {
@@ -64,11 +61,6 @@ func parseArgs() {
 
 	if useLdaps && !group_ldapSettings.LongNameToArgument["--port"].IsPresent() {
 		ldapPort = 636
-	}
-
-	if len(distinguishedName) != 0 && (len(domainController) == 0 || len(authUsername) == 0 || len(authPassword) == 0) {
-		logger.Warn("Error: Options --dc-ip, --username, --password are required when using --distinguished-name.")
-		os.Exit(1)
 	}
 }
 
