@@ -160,7 +160,12 @@ func ParseResults(ldapResults []*ldap.Entry, og *gopengraph.OpenGraph, debug boo
 					p.SetProperty("Y", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_ECC_PUBLIC_KEY).Content.Y[:]))
 
 				}
-				keyNodeId := kc.Identifier + "." + nodeKind
+				keyNodeId := ""
+				if kc.Identifier == "" {
+					keyNodeId = keyCredentialNodeId + "." + nodeKind
+				} else {
+					keyNodeId = kc.Identifier + "." + nodeKind
+				}
 				if og.GetNode(keyNodeId) == nil {
 					// If it doesn't exist, create it, else that means another identical key material already exists.
 					keyNode, err := node.NewNode(
