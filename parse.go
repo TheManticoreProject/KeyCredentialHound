@@ -88,12 +88,12 @@ func ParseResults(ldapResults []*ldap.Entry, og *gopengraph.OpenGraph, ogCrossCo
 			p.SetProperty("name", keyCredentialName)
 			p.SetProperty("displayname", keyCredentialName)
 
-			p.SetProperty("Identifier", kc.Identifier)
-			p.SetProperty("Version", kc.Version.String())
-			p.SetProperty("Source", kc.Source.String())
-			p.SetProperty("Usage", kc.Usage.String())
-			p.SetProperty("CreationTime", kc.CreationTime.String())
-			p.SetProperty("KeyHash", hex.EncodeToString(kc.KeyHash))
+			p.SetProperty("identifier", kc.Identifier)
+			p.SetProperty("version", kc.Version.String())
+			p.SetProperty("source", kc.Source.String())
+			p.SetProperty("usage", kc.Usage.String())
+			p.SetProperty("creation_time", kc.CreationTime.String())
+			p.SetProperty("key_hash", hex.EncodeToString(kc.KeyHash))
 
 			keyCredentialNode, err := node.NewNode(
 				keyCredentialNodeId,
@@ -115,80 +115,80 @@ func ParseResults(ldapResults []*ldap.Entry, og *gopengraph.OpenGraph, ogCrossCo
 				nodeKind := NodeKindUnknownKeyMaterial
 				if _, ok := kc.KeyMaterial.(*keys.BCRYPT_DSA_PRIVATE_KEY); ok {
 					nodeKind = NodeKindDSAPrivateKey
-					p.SetProperty("KeyType", "DSA Private Key")
+					p.SetProperty("key_type", "DSA Private Key")
 
-					p.SetProperty("CbKey", kc.KeyMaterial.(*keys.BCRYPT_DSA_PRIVATE_KEY).Header.CbKey)
-					p.SetProperty("Count", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PRIVATE_KEY).Header.Count[:]))
-					p.SetProperty("Q", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PRIVATE_KEY).Header.Q[:]))
-					p.SetProperty("Seed", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PRIVATE_KEY).Header.Seed[:]))
+					p.SetProperty("cb_key", kc.KeyMaterial.(*keys.BCRYPT_DSA_PRIVATE_KEY).Header.CbKey)
+					p.SetProperty("count", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PRIVATE_KEY).Header.Count[:]))
+					p.SetProperty("q", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PRIVATE_KEY).Header.Q[:]))
+					p.SetProperty("seed", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PRIVATE_KEY).Header.Seed[:]))
 
-					p.SetProperty("Modulus", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PRIVATE_KEY).Content.Modulus[:]))
-					p.SetProperty("PrivateExponent", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PRIVATE_KEY).Content.PrivateExponent[:]))
-					p.SetProperty("Public", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PRIVATE_KEY).Content.Public[:]))
+					p.SetProperty("modulus", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PRIVATE_KEY).Content.Modulus[:]))
+					p.SetProperty("private_exponent", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PRIVATE_KEY).Content.PrivateExponent[:]))
+					p.SetProperty("public", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PRIVATE_KEY).Content.Public[:]))
 
 				} else if _, ok := kc.KeyMaterial.(*keys.BCRYPT_DSA_PUBLIC_KEY); ok {
 					nodeKind = NodeKindDSAPublicKey
-					p.SetProperty("KeyType", "DSA Public Key")
+					p.SetProperty("key_type", "DSA Public Key")
 
-					p.SetProperty("CbKey", kc.KeyMaterial.(*keys.BCRYPT_DSA_PUBLIC_KEY).Header.CbKey)
-					p.SetProperty("Count", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PUBLIC_KEY).Header.Count[:]))
-					p.SetProperty("Q", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PUBLIC_KEY).Header.Q[:]))
-					p.SetProperty("Seed", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PUBLIC_KEY).Header.Seed[:]))
+					p.SetProperty("cb_key", kc.KeyMaterial.(*keys.BCRYPT_DSA_PUBLIC_KEY).Header.CbKey)
+					p.SetProperty("count", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PUBLIC_KEY).Header.Count[:]))
+					p.SetProperty("q", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PUBLIC_KEY).Header.Q[:]))
+					p.SetProperty("seed", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PUBLIC_KEY).Header.Seed[:]))
 
-					p.SetProperty("Modulus", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PUBLIC_KEY).Content.Modulus[:]))
-					p.SetProperty("Public", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PUBLIC_KEY).Content.Public[:]))
-					p.SetProperty("Generator", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PUBLIC_KEY).Content.Generator[:]))
+					p.SetProperty("modulus", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PUBLIC_KEY).Content.Modulus[:]))
+					p.SetProperty("public", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PUBLIC_KEY).Content.Public[:]))
+					p.SetProperty("generator", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_DSA_PUBLIC_KEY).Content.Generator[:]))
 
 				} else if _, ok := kc.KeyMaterial.(*keys.BCRYPT_RSA_PRIVATE_KEY); ok {
 					nodeKind = NodeKindRSAPrivateKey
-					p.SetProperty("KeyType", "RSA Private Key")
+					p.SetProperty("key_type", "RSA Private Key")
 
-					p.SetProperty("BitLength", kc.KeyMaterial.(*keys.BCRYPT_RSA_PRIVATE_KEY).Header.BitLength)
-					p.SetProperty("CbModulus", kc.KeyMaterial.(*keys.BCRYPT_RSA_PRIVATE_KEY).Header.CbModulus)
-					p.SetProperty("CbPrime1", kc.KeyMaterial.(*keys.BCRYPT_RSA_PRIVATE_KEY).Header.CbPrime1)
-					p.SetProperty("CbPrime2", kc.KeyMaterial.(*keys.BCRYPT_RSA_PRIVATE_KEY).Header.CbPrime2)
-					p.SetProperty("CbPublicExp", kc.KeyMaterial.(*keys.BCRYPT_RSA_PRIVATE_KEY).Header.CbPublicExp)
+					p.SetProperty("bit_length", kc.KeyMaterial.(*keys.BCRYPT_RSA_PRIVATE_KEY).Header.BitLength)
+					p.SetProperty("cb_modulus", kc.KeyMaterial.(*keys.BCRYPT_RSA_PRIVATE_KEY).Header.CbModulus)
+					p.SetProperty("cb_prime1", kc.KeyMaterial.(*keys.BCRYPT_RSA_PRIVATE_KEY).Header.CbPrime1)
+					p.SetProperty("cb_prime2", kc.KeyMaterial.(*keys.BCRYPT_RSA_PRIVATE_KEY).Header.CbPrime2)
+					p.SetProperty("cb_public_exp", kc.KeyMaterial.(*keys.BCRYPT_RSA_PRIVATE_KEY).Header.CbPublicExp)
 
-					p.SetProperty("Modulus", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_RSA_PRIVATE_KEY).Content.Modulus[:]))
-					p.SetProperty("Prime1", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_RSA_PRIVATE_KEY).Content.Prime1[:]))
-					p.SetProperty("Prime2", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_RSA_PRIVATE_KEY).Content.Prime2[:]))
-					p.SetProperty("PublicExponent", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_RSA_PRIVATE_KEY).Content.PublicExponent[:]))
+					p.SetProperty("modulus", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_RSA_PRIVATE_KEY).Content.Modulus[:]))
+					p.SetProperty("prime1", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_RSA_PRIVATE_KEY).Content.Prime1[:]))
+					p.SetProperty("prime2", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_RSA_PRIVATE_KEY).Content.Prime2[:]))
+					p.SetProperty("public_exponent", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_RSA_PRIVATE_KEY).Content.PublicExponent[:]))
 
 				} else if _, ok := kc.KeyMaterial.(*keys.BCRYPT_RSA_PUBLIC_KEY); ok {
 					nodeKind = NodeKindRSAPublicKey
-					p.SetProperty("KeyType", "RSA Public Key")
+					p.SetProperty("key_type", "RSA Public Key")
 
-					p.SetProperty("BitLength", kc.KeyMaterial.(*keys.BCRYPT_RSA_PUBLIC_KEY).Header.BitLength)
-					p.SetProperty("CbModulus", kc.KeyMaterial.(*keys.BCRYPT_RSA_PUBLIC_KEY).Header.CbModulus)
-					p.SetProperty("CbPrime1", kc.KeyMaterial.(*keys.BCRYPT_RSA_PUBLIC_KEY).Header.CbPrime1)
-					p.SetProperty("CbPrime2", kc.KeyMaterial.(*keys.BCRYPT_RSA_PUBLIC_KEY).Header.CbPrime2)
-					p.SetProperty("CbPublicExp", kc.KeyMaterial.(*keys.BCRYPT_RSA_PUBLIC_KEY).Header.CbPublicExp)
+					p.SetProperty("bit_length", kc.KeyMaterial.(*keys.BCRYPT_RSA_PUBLIC_KEY).Header.BitLength)
+					p.SetProperty("cb_modulus", kc.KeyMaterial.(*keys.BCRYPT_RSA_PUBLIC_KEY).Header.CbModulus)
+					p.SetProperty("cb_prime1", kc.KeyMaterial.(*keys.BCRYPT_RSA_PUBLIC_KEY).Header.CbPrime1)
+					p.SetProperty("cb_prime2", kc.KeyMaterial.(*keys.BCRYPT_RSA_PUBLIC_KEY).Header.CbPrime2)
+					p.SetProperty("cb_public_exp", kc.KeyMaterial.(*keys.BCRYPT_RSA_PUBLIC_KEY).Header.CbPublicExp)
 
-					p.SetProperty("Modulus", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_RSA_PUBLIC_KEY).Content.Modulus[:]))
-					p.SetProperty("PublicExponent", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_RSA_PUBLIC_KEY).Content.PublicExponent[:]))
+					p.SetProperty("modulus", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_RSA_PUBLIC_KEY).Content.Modulus[:]))
+					p.SetProperty("public_exponent", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_RSA_PUBLIC_KEY).Content.PublicExponent[:]))
 
 				} else if _, ok := kc.KeyMaterial.(*keys.BCRYPT_ECC_PRIVATE_KEY); ok {
 					nodeKind = NodeKindECCPrivateKey
-					p.SetProperty("KeyType", "ECC Private Key")
+					p.SetProperty("key_type", "ECC Private Key")
 
-					p.SetProperty("KeySize", kc.KeyMaterial.(*keys.BCRYPT_ECC_PRIVATE_KEY).Header.KeySize)
+					p.SetProperty("key_size", kc.KeyMaterial.(*keys.BCRYPT_ECC_PRIVATE_KEY).Header.KeySize)
 
-					p.SetProperty("D", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_ECC_PRIVATE_KEY).Content.D[:]))
-					p.SetProperty("X", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_ECC_PRIVATE_KEY).Content.X[:]))
-					p.SetProperty("Y", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_ECC_PRIVATE_KEY).Content.Y[:]))
+					p.SetProperty("d", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_ECC_PRIVATE_KEY).Content.D[:]))
+					p.SetProperty("x", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_ECC_PRIVATE_KEY).Content.X[:]))
+					p.SetProperty("y", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_ECC_PRIVATE_KEY).Content.Y[:]))
 
 				} else if _, ok := kc.KeyMaterial.(*keys.BCRYPT_ECC_PUBLIC_KEY); ok {
 					nodeKind = NodeKindECCPublicKey
-					p.SetProperty("KeyType", "ECC Public Key")
+					p.SetProperty("key_type", "ECC Public Key")
 
-					p.SetProperty("KeySize", kc.KeyMaterial.(*keys.BCRYPT_ECC_PUBLIC_KEY).Header.KeySize)
+					p.SetProperty("key_size", kc.KeyMaterial.(*keys.BCRYPT_ECC_PUBLIC_KEY).Header.KeySize)
 
-					p.SetProperty("X", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_ECC_PUBLIC_KEY).Content.X[:]))
-					p.SetProperty("Y", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_ECC_PUBLIC_KEY).Content.Y[:]))
+					p.SetProperty("x", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_ECC_PUBLIC_KEY).Content.X[:]))
+					p.SetProperty("y", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_ECC_PUBLIC_KEY).Content.Y[:]))
 
 				}
 
-				keyMaterialName := p.GetProperty("KeyType", "Unknown Key Material")
+				keyMaterialName := p.GetProperty("key_type", "Unknown Key Material")
 				p.SetProperty("name", keyMaterialName)
 				p.SetProperty("displayname", keyMaterialName)
 
