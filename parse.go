@@ -18,6 +18,21 @@ import (
 func ParseResults(ldapResults []*ldap.Entry, og *gopengraph.OpenGraph, debug bool) {
 	for _, entry := range ldapResults {
 		distinguishedName := entry.GetAttributeValue("distinguishedName")
+
+		// Resolve the account's objectSid once per entry. It is immutable for the
+		// lifetime of the principal and is used both as the stable namespace for
+		// node ids and as the start of the HasKeyCredential edge.
+		rawAccountSid := entry.GetRawAttributeValue("objectSid")
+		if len(rawAccountSid) == 0 {
+			logger.Warn(fmt.Sprintf("Error: Account SID is empty for account: %s", distinguishedName))
+			continue
+		}
+		accountSid := sid.SID{}
+		if _, err := accountSid.Unmarshal(rawAccountSid); err != nil {
+			logger.Warn(fmt.Sprintf("Error unmarshalling account SID for account %s: %s", distinguishedName, err))
+			continue
+		}
+
 		msDsKeyCredentialLinkValues := entry.GetEqualFoldRawAttributeValues("msDS-KeyCredentialLink")
 		lenMsDsKeyCredentialLinkValues := len(msDsKeyCredentialLinkValues)
 
@@ -48,12 +63,13 @@ func ParseResults(ldapResults []*ldap.Entry, og *gopengraph.OpenGraph, debug boo
 				continue
 			}
 
-			// Add key credential node to graph
+			// Add key credential node to graph. The id is namespaced by the
+			// immutable account SID so it stays stable across renames/OU moves.
 			keyCredentialNodeId := ""
 			if kc.Identifier == "" {
-				keyCredentialNodeId = fmt.Sprintf("Unknown-%d", id+1) + "." + distinguishedName
+				keyCredentialNodeId = accountSid.String() + "." + fmt.Sprintf("Unknown-%d", id+1)
 			} else {
-				keyCredentialNodeId = kc.Identifier + "." + distinguishedName
+				keyCredentialNodeId = accountSid.String() + "." + kc.Identifier
 			}
 
 			// Create key credential node
@@ -208,19 +224,6 @@ func ParseResults(ldapResults []*ldap.Entry, og *gopengraph.OpenGraph, debug boo
 					logger.Warn(fmt.Sprintf("Error adding edge: (%s)---[%s]-->(%s)", keyCredentialNodeId, EdgeKindHasKeyMaterial, keyNodeId))
 					continue
 				}
-			}
-
-			// Create account SID node
-			rawAccountSid := entry.GetRawAttributeValue("objectSid")
-			if len(rawAccountSid) == 0 {
-				logger.Warn(fmt.Sprintf("Error: Account SID is empty for account: %s", distinguishedName))
-				continue
-			}
-			accountSid := sid.SID{}
-			_, err = accountSid.Unmarshal(rawAccountSid)
-			if err != nil {
-				logger.Warn(fmt.Sprintf("Error unmarshalling account SID: %s", err))
-				continue
 			}
 
 			// Create has key credential edge
