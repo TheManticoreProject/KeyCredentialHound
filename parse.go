@@ -59,7 +59,12 @@ func ParseResults(ldapResults []*ldap.Entry, og *gopengraph.OpenGraph, debug boo
 			// Create key credential node
 			p := properties.NewProperties()
 
-			p.SetProperty("displayName", kc.Identifier)
+			keyCredentialName := kc.Identifier
+			if keyCredentialName == "" {
+				keyCredentialName = fmt.Sprintf("Unknown-%d", id+1)
+			}
+			p.SetProperty("name", keyCredentialName)
+			p.SetProperty("displayname", keyCredentialName)
 
 			p.SetProperty("Identifier", kc.Identifier)
 			p.SetProperty("Version", kc.Version.String())
@@ -160,6 +165,11 @@ func ParseResults(ldapResults []*ldap.Entry, og *gopengraph.OpenGraph, debug boo
 					p.SetProperty("Y", hex.EncodeToString(kc.KeyMaterial.(*keys.BCRYPT_ECC_PUBLIC_KEY).Content.Y[:]))
 
 				}
+
+				keyMaterialName := p.GetProperty("KeyType", "Unknown Key Material")
+				p.SetProperty("name", keyMaterialName)
+				p.SetProperty("displayname", keyMaterialName)
+
 				keyNodeId := ""
 				if kc.Identifier == "" {
 					keyNodeId = keyCredentialNodeId + "." + nodeKind
