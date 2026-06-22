@@ -111,7 +111,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		og := gopengraph.NewOpenGraph("KeyCredentialBase")
+		og := gopengraph.NewOpenGraph(KindKeyCredentialBase)
 
 		ParseResults(ldapResults, og, debug)
 
