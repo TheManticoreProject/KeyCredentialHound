@@ -44,10 +44,10 @@ def update_icon(base_url, bearer, kind_name, icon_name, icon_color, icon_type="f
             verify=verify
         )
 
-        if r.status_code == 200:
-            print(f"  └──[+] Custom icon for {kind_name} updated successfully")
+        if r.status_code in (200, 201):
+            print(f"  └──[+] Custom icon for {kind_name} created successfully")
         else:
-            print(f"  └──[!] Failed to update custom icon for {kind_name} (HTTP {r.status_code})")
+            print(f"  └──[!] Failed to create custom icon for {kind_name} (HTTP {r.status_code})")
             print(r.text)
             return
 
