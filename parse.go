@@ -15,7 +15,13 @@ import (
 	"github.com/TheManticoreProject/winacl/sid"
 )
 
-func ParseResults(ldapResults []*ldap.Entry, og *gopengraph.OpenGraph, debug bool) {
+// ParseResults populates two graphs from the LDAP results:
+//   - og holds the collector's own nodes (KeyCredential, key material) and the
+//     intra-collector HasKeyMaterial edges; it carries the source_kind.
+//   - ogCrossCollector holds only the HasKeyCredential edges that link existing
+//     AD principals to KeyCredential nodes. It must NOT carry a source_kind, so
+//     that the referenced AD nodes are never stamped with this collector's kind.
+func ParseResults(ldapResults []*ldap.Entry, og *gopengraph.OpenGraph, ogCrossCollector *gopengraph.OpenGraph, debug bool) {
 	for _, entry := range ldapResults {
 		distinguishedName := entry.GetAttributeValue("distinguishedName")
 
@@ -226,7 +232,9 @@ func ParseResults(ldapResults []*ldap.Entry, og *gopengraph.OpenGraph, debug boo
 				}
 			}
 
-			// Create has key credential edge
+			// Create has key credential edge. This is a cross-collector edge to a
+			// pre-existing AD principal, so it goes into the separate graph that
+			// carries no source_kind (see the two-step upload note above).
 			hasKeyCredentialEdge, err := edge.NewEdge(
 				accountSid.String(),
 				keyCredentialNodeId,
@@ -238,7 +246,7 @@ func ParseResults(ldapResults []*ldap.Entry, og *gopengraph.OpenGraph, debug boo
 				continue
 			}
 			// We don't validate the edge here because its a hybrid edge (the SID is not a node in this graph).
-			if !og.AddEdgeWithoutValidation(hasKeyCredentialEdge) {
+			if !ogCrossCollector.AddEdgeWithoutValidation(hasKeyCredentialEdge) {
 				logger.Warn(fmt.Sprintf("Error adding edge: (%s)---[%s]-->(%s)", accountSid.String(), EdgeKindHasKeyCredential, keyCredentialNodeId))
 				continue
 			}

@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/TheManticoreProject/Manticore/logger"
@@ -64,6 +66,27 @@ func parseArgs() {
 	}
 }
 
+// crossCollectorOutputFile derives the cross-collector output path from the main
+// output path by inserting a "_cross_collector" suffix before the extension.
+func crossCollectorOutputFile(outputFile string) string {
+	ext := filepath.Ext(outputFile)
+	return strings.TrimSuffix(outputFile, ext) + "_cross_collector" + ext
+}
+
+// writeGraph serializes og (with metadata) and writes it to outputFile.
+func writeGraph(og *gopengraph.OpenGraph, outputFile string) error {
+	logger.Info(fmt.Sprintf("Exporting graph to file: %s", outputFile))
+	jsonData, err := og.ExportJSON(true)
+	if err != nil {
+		return fmt.Errorf("error serializing graph to JSON: %w", err)
+	}
+	if err := os.WriteFile(outputFile, []byte(jsonData), 0600); err != nil {
+		return fmt.Errorf("error writing graph to file %s: %w", outputFile, err)
+	}
+	logger.Info(fmt.Sprintf("Graph exported to file: %s", outputFile))
+	return nil
+}
+
 func main() {
 	parseArgs()
 
@@ -111,22 +134,26 @@ func main() {
 			os.Exit(1)
 		}
 
+		// og carries the collector's own nodes/edges and the source_kind.
 		og := gopengraph.NewOpenGraph(KindKeyCredentialBase)
+		// ogCrossCollector carries only the cross-collector edges to existing AD
+		// principals and must NOT set a source_kind, so those AD nodes are never
+		// stamped with this collector's kind (two-step upload).
+		ogCrossCollector := gopengraph.NewOpenGraph("")
 
-		ParseResults(ldapResults, og, debug)
+		ParseResults(ldapResults, og, ogCrossCollector, debug)
 
-		logger.Info(fmt.Sprintf("Exporting graph to file: %s", outputFile))
-		jsonData, err := og.ExportJSON(true)
-		if err != nil {
-			logger.Warn(fmt.Sprintf("Error serializing graph to JSON: %s", err))
+		if err := writeGraph(og, outputFile); err != nil {
+			logger.Warn(err.Error())
 			os.Exit(1)
 		}
-		err = os.WriteFile(outputFile, []byte(jsonData), 0600)
-		if err != nil {
-			logger.Warn(fmt.Sprintf("Error writing graph to file %s: %s", outputFile, err))
+
+		crossOutputFile := crossCollectorOutputFile(outputFile)
+		if err := writeGraph(ogCrossCollector, crossOutputFile); err != nil {
+			logger.Warn(err.Error())
 			os.Exit(1)
 		}
-		logger.Info(fmt.Sprintf("Graph exported to file: %s", outputFile))
+		logger.Info("Upload the main file first, then the cross-collector file, to avoid stamping AD nodes with the collector's source kind.")
 
 	} else {
 		if debug {

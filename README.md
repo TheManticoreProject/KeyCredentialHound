@@ -83,6 +83,15 @@ Usage: KeyCredentialHound [--debug] [--output-file <string>] [--domain <string>]
     -k, --use-kerberos    Use Kerberos instead of NTLM. (default: false)
 ```
 
+## Output files
+
+KeyCredentialHound writes **two** JSON files per run:
+
+1. `<output>.json` — the collector's own nodes (KeyCredential and key material) and the `HasKeyMaterial` edges, tagged with the `KeyCredentialBase` source kind.
+2. `<output>_cross_collector.json` — only the `HasKeyCredential` edges linking existing Active Directory principals to KeyCredential nodes. This file carries **no** source kind.
+
+Upload the main file first, then the cross-collector file. Splitting them this way ensures the `KeyCredentialBase` source kind is never applied to your Active Directory nodes, so deleting the collector's data later does not delete AD principals.
+
 ## Contributing
 
 Pull requests are welcome. Feel free to open an issue if you want to add other features.
