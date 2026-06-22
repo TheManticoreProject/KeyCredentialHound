@@ -116,7 +116,7 @@ func main() {
 		ParseResults(ldapResults, og, debug)
 
 		logger.Info(fmt.Sprintf("Exporting graph to file: %s", outputFile))
-		jsonData, err := og.ExportJSON(false)
+		jsonData, err := og.ExportJSON(true)
 		if err != nil {
 			logger.Warn(fmt.Sprintf("Error serializing graph to JSON: %s", err))
 			os.Exit(1)
